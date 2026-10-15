@@ -203,7 +203,7 @@ rfm["recency_days"] = rfm["recency_days"].astype(int)
 def make_score(series, higher_is_better=True):
     if series.nunique() <= 1:
         return pd.Series(3, index=series.index, dtype=int)
-    ranks = series.rank(method="average", ascending=not higher_is_better)
+    ranks = series.rank(method="average", ascending=higher_is_better)
     return pd.qcut(ranks, q=4, labels=[1, 2, 3, 4]).astype(int)
 
 rfm["R_score"] = make_score(rfm["recency_days"], higher_is_better=False)
@@ -256,6 +256,11 @@ Cohort month is each user's signup month. Activity month is the month of a trans
 code("""cohort_source = transactions.merge(
     users[["user_id", "signup_date"]], on="user_id", how="left"
 )
+pre_signup_rows = int((cohort_source["txn_date"] < cohort_source["signup_date"]).sum())
+cohort_source = cohort_source.loc[
+    cohort_source["txn_date"] >= cohort_source["signup_date"]
+].copy()
+print(f"Excluded {pre_signup_rows:,} pre-signup transactions from cohort retention.")
 cohort_source["cohort_month"] = cohort_source["signup_date"].dt.to_period("M")
 cohort_source["activity_month"] = cohort_source["txn_date"].dt.to_period("M")
 cohort_source["cohort_age"] = (
@@ -268,15 +273,27 @@ cohort_sizes = users.assign(
     cohort_month=users["signup_date"].dt.to_period("M")
 ).groupby("cohort_month")["user_id"].nunique()
 
-cohort_activity = cohort_source.groupby(
-    ["cohort_month", "cohort_age"]
-)["user_id"].nunique().unstack()
+latest_activity_month = transactions["txn_date"].dt.to_period("M").max()
+
+# Build a complete month-age matrix, including cohorts with no valid transactions.
+earliest_cohort_month = cohort_sizes.index.min()
+max_cohort_age = max(
+    0,
+    (latest_activity_month.year - earliest_cohort_month.year) * 12
+    + latest_activity_month.month - earliest_cohort_month.month
+)
+all_cohort_ages = list(range(max_cohort_age + 1))
+
+cohort_activity = (
+    cohort_source.groupby(["cohort_month", "cohort_age"])["user_id"]
+    .nunique()
+    .unstack(fill_value=0)
+    .reindex(index=cohort_sizes.index, columns=all_cohort_ages, fill_value=0)
+)
 
 retention = cohort_activity.div(cohort_sizes, axis=0) * 100
 retention.index = retention.index.astype(str)
 retention.columns = [int(c) for c in retention.columns]
-
-latest_activity_month = transactions["txn_date"].dt.to_period("M").max()
 cohort_month_periods = users["signup_date"].dt.to_period("M")
 retention_display = retention.copy().astype(object)
 

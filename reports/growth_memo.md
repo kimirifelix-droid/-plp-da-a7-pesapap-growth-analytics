@@ -13,4 +13,4 @@ Assuming 3,000 eligible sign-ups per month, estimated incremental conversions ar
 Recommend a monitored, staged rollout of variant B, with ongoing conversion and guardrail monitoring. Monitor conversion, onboarding completion, fraud, support contacts and subsequent transaction activity.
 
 ## Caveats
-The dataset is synthetic. Transaction dates are generated independently of signup dates. The interval uses a normal approximation, and impact assumes the experiment effect generalises. Implementation costs and longer-term customer value are excluded.
+The dataset is synthetic. Transaction dates are generated independently of signup dates, producing 3,737 pre-signup transactions. The cohort-retention analysis excludes these transactions; other transaction-based findings should be interpreted with caution. The interval uses a normal approximation, and impact assumes the experiment effect generalises. Implementation costs and longer-term customer value are excluded.

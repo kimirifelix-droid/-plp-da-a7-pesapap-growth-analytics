@@ -46,7 +46,7 @@ The analysis loads the data into SQLite database tables and uses SQL queries wit
 
 2. **The experiment showed statistically significant evidence of improvement.** The absolute conversion lift was 3.34 percentage points, relative lift was 31.96%, and the chi-square p-value was 0.005168. The 95% confidence interval for absolute lift was 1.01 to 5.67 percentage points.
 
-3. **Transaction dates contain a material data-quality issue.** There were 3,737 transactions, representing 31.14% of all transactions, dated before the associated user's signup date. Lifecycle and retention conclusions therefore require caution.
+3. **Transaction dates contain a material data-quality issue.** There were 3,737 transactions, representing 31.14% of all transactions, dated before the associated user's signup date. The corrected cohort-retention analysis excludes these pre-signup transactions; other transaction-based findings should still be interpreted cautiously because the synthetic dates are inconsistent with signup dates.
 
 4. **Customer segmentation can guide growth actions.** The analysis recommends investigating high-value customers first, using retention offers for at-risk high-value customers and loyalty benefits for active high-value customers.
 
