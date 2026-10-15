@@ -1,0 +1,11 @@
+﻿.venv/
+__pycache__/
+*.py[cod]
+users.csv
+transactions.csv
+experiment.csv
+pesapap.db
+*.db
+*.sqlite
+*.sqlite3
+.ipynb_checkpoints/
